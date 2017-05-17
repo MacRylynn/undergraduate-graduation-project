@@ -1,0 +1,148 @@
+void SubPixelEdge(Mat smoothImage)
+{
+	    vector<Point2d> SubEdgePoints;  
+	    Mat M00 = (Mat_<double>(7, 7) <<  
+			0.0000, 0.0287, 0.0686, 0.0807, 0.0686, 0.0287, 0.0000,  
+			0.0287, 0.0815, 0.0816, 0.0816, 0.0816, 0.0815, 0.0287,  
+			0.0686, 0.0816, 0.0816, 0.0816, 0.0816, 0.0816, 0.0686,  
+			0.0807, 0.0816, 0.0816, 0.0816, 0.0816, 0.0816, 0.0807,  
+			0.0686, 0.0816, 0.0816, 0.0816, 0.0816, 0.0816, 0.0686,  
+			0.0287, 0.0815, 0.0816, 0.0816, 0.0816, 0.0815, 0.0287,  
+			0.0000, 0.0287, 0.0686, 0.0807, 0.0686, 0.0287, 0.0000);  
+  
+	   Mat M11R = (Mat_<double>(7, 7) <<  
+		 	 0.0000, -0.015,  -0.019,  0, 0.019,  0.015,  0,  
+			-0.0224, -0.0466, -0.0233, 0, 0.0233, 0.0466, 0.0224,  
+			-0.0573, -0.0466, -0.0233, 0, 0.0233, 0.0466, 0.0573,  
+			-0.069,  -0.0466, -0.0233, 0, 0.0233, 0.0466, 0.069,  
+			-0.0573, -0.0466, -0.0233, 0, 0.0233, 0.0466, 0.0573,  
+			-0.0224, -0.0466, -0.0233, 0, 0.0233, 0.0466, 0.0224,  
+			 0.0000, -0.015,  -0.019,  0, 0.019,  0.015,  0);  
+  
+		Mat M11I = (Mat_<double>(7, 7) <<  
+			 0,     -0.0224, -0.0573, -0.069,  -0.0573, -0.0224,  0,  
+			-0.015, -0.0466, -0.0466, -0.0466, -0.0466, -0.0466, -0.015,  
+			-0.019, -0.0233, -0.0233, -0.0233, -0.0233, -0.0233, -0.019,  
+			 0,      0,       0,       0,       0,       0,       0,  
+			 0.019,  0.0233,  0.0233,  0.0233,  0.0233,  0.0233,  0.019,  
+			 0.015,  0.0466,  0.0466,  0.0466,  0.0466,  0.0466,  0.015,  
+			 0,      0.0224,  0.0573,  0.069,   0.0573,  0.0224,  0);  
+  
+		Mat M20 = (Mat_<double>(7, 7) <<  
+			0,       0.0225,  0.0394,  0.0396,  0.0394,  0.0225, 0,  
+			0.0225,  0.0271, -0.0128, -0.0261, -0.0128,  0.0271, 0.0225,  
+			0.0394, -0.0128, -0.0528, -0.0661, -0.0528, -0.0128, 0.0394,  
+			0.0396, -0.0261, -0.0661, -0.0794, -0.0661, -0.0261, 0.0396,  
+			0.0394, -0.0128, -0.0528, -0.0661, -0.0528, -0.0128, 0.0394,  
+			0.0225,  0.0271, -0.0128, -0.0261, -0.0128,  0.0271, 0.0225,  
+			0,       0.0225,  0.0394,  0.0396,  0.0394,  0.0225, 0);  
+  
+		Mat M31R = (Mat_<double>(7, 7) <<  
+			 0,      -0.0103, -0.0073, 0,  0.0073,  0.0103, 0,  
+			-0.0153, -0.0018,  0.0162, 0, -0.0162,  0.0018, 0.0153,  
+			-0.0223,  0.0324,  0.0333, 0, -0.0333, -0.0324, 0.0223,  
+			-0.0190,  0.0438,  0.0390, 0, -0.0390, -0.0438, 0.0190,  
+			-0.0223,  0.0324,  0.0333, 0, -0.0333, -0.0324, 0.0223,  
+			-0.0153, -0.0018,  0.0162, 0, -0.0162,  0.0018, 0.0153,  
+			 0,      -0.0103, -0.0073, 0,  0.0073,  0.0103, 0);  
+  
+		Mat M31I = (Mat_<double>(7, 7) <<  
+			 0,      -0.0153, -0.0223, -0.019,  -0.0223, -0.0153,  0,  
+			-0.0103, -0.0018,  0.0324,  0.0438,  0.0324, -0.0018, -0.0103,  
+			-0.0073,  0.0162,  0.0333,  0.039,   0.0333,  0.0162, -0.0073,  
+			 0,       0,       0,       0,       0,       0,       0,  
+			 0.0073, -0.0162, -0.0333, -0.039,  -0.0333, -0.0162,  0.0073,  
+			 0.0103,  0.0018, -0.0324, -0.0438, -0.0324,  0.0018,  0.0103,  
+		 	 0,       0.0153,  0.0223,  0.0190,  0.0223,  0.0153,  0);  
+  
+		Mat M40 = (Mat_<double>(7, 7) <<  
+			 0,       0.013,   0.0056, -0.0018,  0.0056,  0.013,   0,  
+			 0.0130, -0.0186, -0.0323, -0.0239, -0.0323, -0.0186,  0.0130,  
+			 0.0056, -0.0323,  0.0125,  0.0406,  0.0125, -0.0323,  0.0056,  
+			-0.0018, -0.0239,  0.0406,  0.0751,  0.0406, -0.0239, -0.0018,  
+			 0.0056, -0.0323,  0.0125,  0.0406,  0.0125, -0.0323,  0.0056,  
+			 0.0130, -0.0186, -0.0323, -0.0239, -0.0323, -0.0186,  0.0130,  
+			 0,       0.013,   0.0056, -0.0018,  0.0056,  0.013,   0);  
+  
+  
+		Mat ZerImageM00;  
+		filter2D(smoothImage, ZerImageM00, CV_64F, M00, Point(-1, -1), 0, BORDER_DEFAULT);  
+  
+		Mat ZerImageM11R;  
+		filter2D(smoothImage, ZerImageM11R, CV_64F, M11R, Point(-1, -1), 0, BORDER_DEFAULT);  
+  
+		Mat ZerImageM11I;  
+		filter2D(smoothImage, ZerImageM11I, CV_64F, M11I, Point(-1, -1), 0, BORDER_DEFAULT);  
+  
+  
+		Mat ZerImageM20;  
+		filter2D(smoothImage, ZerImageM20, CV_64F, M20, Point(-1, -1), 0, BORDER_DEFAULT);  
+  
+  
+		Mat ZerImageM31R;  
+		filter2D(smoothImage, ZerImageM31R, CV_64F, M31R, Point(-1, -1), 0, BORDER_DEFAULT);  
+  
+		Mat ZerImageM31I;  
+		filter2D(smoothImage, ZerImageM31I, CV_64F, M31I, Point(-1, -1), 0, BORDER_DEFAULT);  
+  
+		Mat ZerImageM40;  
+		filter2D(smoothImage, ZerImageM40, CV_64F, M40, Point(-1, -1), 0, BORDER_DEFAULT);  
+  
+		int row_number = smoothImage.rows;  
+		int col_number = smoothImage.cols;  
+  
+		for (int i = 0; i < row_number; i++)  
+		{  
+			for (int j = 0; j <col_number; j++)  
+			{  
+				if (ZerImageM00.at<double>(i, j) == 0)  
+				{  
+					continue;  
+				}  
+          
+				double theta_temporary = atan2(ZerImageM31I.at<double>(i, j), ZerImageM31R.at<double>(i, j));  //计算边缘角度
+
+				//compute Z11'/Z31'  OK
+				double rotated_z11 = 0.0;  
+				rotated_z11 = sin(theta_temporary)*(ZerImageM11I.at<double>(i, j)) + cos(theta_temporary)*(ZerImageM11R.at<double>(i, j));  
+				double rotated_z31 = 0.0;  
+				rotated_z31 = sin(theta_temporary)*(ZerImageM31I.at<double>(i, j)) + cos(theta_temporary)*(ZerImageM31R.at<double>(i, j));  
+  
+				//计算 l1,l2,l		OK
+				double l_method1 = sqrt((5 * ZerImageM40.at<double>(i, j) + 3 * ZerImageM20.at<double>(i, j)) / (8 * ZerImageM20.at<double>(i, j)));  
+				double l_method2 = sqrt((5 * rotated_z31 + rotated_z11) / (6 * rotated_z11));  
+				double l = (l_method1 + l_method2) / 2;  
+          
+				//计算 k,h   OK
+				double k, h;          
+				k = 3 * rotated_z11 / 2 / pow((1 - l_method2*l_method2), 1.5);  
+				h = (ZerImageM00.at<double>(i, j) - k*CV_PI / 2 + k*asin(l_method2) + k*l_method2*sqrt(1 - l_method2*l_method2)) /CV_PI;  
+				//判断边缘  
+				double k_value = 1.9; //可以修改的参数
+				double g_N = 7;      //可以修改的参数 
+				double l_value = 1/sqrt(2);  
+				double absl = abs(l_method2 - l_method1);  
+				if (k >= k_value && absl <= l_value)  
+				{  
+					Point2d point_temporary;  
+					point_temporary.x = j + g_N*l*cos(theta_temporary)/1.5; // 可以修改的参数
+					point_temporary.y = i + g_N*l*sin(theta_temporary)/1.5;  //可以修改的参数
+				/*	point_temporary.x = j + l*cos(theta_temporary) ;  
+					point_temporary.y = i + l*sin(theta_temporary) ; */
+					SubEdgePoints.push_back(point_temporary);  
+				}  
+				else  
+				{  
+					continue;  
+				}  
+			}  
+		}  
+		//显示亚像素边缘图像 
+		Mat SubImage = Mat::zeros( smoothImage.size(), CV_8UC1 );  
+		for (size_t i = 0; i < SubEdgePoints.size(); i++)  
+		{  
+		Point center_forshow(SubEdgePoints[i].x, SubEdgePoints[i].y);  
+		circle(SubImage, center_forshow, 0.1, Scalar(255, 50, 255), 1, 8, 0);
+		} 
+		 SubImageEdge = SubImage;
+}
